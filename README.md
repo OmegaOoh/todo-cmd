@@ -15,9 +15,3 @@ Write in Rust Programming Language
     cargo build --release
    ```
 4. Run the application `/target/release/todo-cmd`
-
-### Optional
-Make the app executable to your system's console/terminal
-```shell
-cargo install --path
-```
