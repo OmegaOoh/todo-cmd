@@ -5,16 +5,15 @@ use std::fs::{remove_file, OpenOptions};
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use crate::todo_list::task::Task;
-use fancy::{printcol, printcoln};
+use fancy::{colorize, printcol, printcoln};
 
 pub struct ToDoList {
     task_list: Vec<Task>,
-    done_list: Vec<Task>,
 }
 
 impl ToDoList {
     pub(crate) fn new() -> Self {
-        Self { task_list: Vec::new(), done_list: Vec::new() }
+        Self { task_list: Vec::new()}
     }
 
     pub fn add_cui(&mut self, cmd: Vec<&str>) -> Option<String> {
@@ -53,12 +52,21 @@ impl ToDoList {
             printcoln!("[b]Your todo list is empty.");
             return;
         }
-        printcoln!("[yellow|b]TODO: ");
+        let mut done_buf = Vec::<String>::new();
+        let mut undone_buf = Vec::<String>::new();
         self.task_list.iter().enumerate()
-            .for_each(|(i, t)| { printcoln!("[b]{}.[:] {}", i + 1, t.to_string()); });
+            .for_each(|(i, t)| {
+                let text = colorize!("[b]({})[:] {}", i + 1, t.to_string());
+                if t.get_done() {
+                    done_buf.push(text);
+                } else {
+                    undone_buf.push(text);
+                }
+            });
+        printcoln!("[yellow|b]TODO: ");
+        undone_buf.iter().for_each(|s| { printcoln!("{}",s.to_string());});
         printcoln!("[magenta|b]DONE: ");
-        self.done_list.iter().enumerate()
-            .for_each(|(i, t)| { printcoln!("[b]{}.[:] [s]{}", i + 1, t.to_string()); });
+        done_buf.iter().for_each(|s| { printcoln!("{}",s.to_string());});
     }
 
     pub fn mark_as_done_cui(&mut self, cmd: &Vec<&str>) -> Option<i32> {
@@ -78,11 +86,18 @@ impl ToDoList {
     }
 
     pub fn clear_done(&mut self) {
-        self.done_list.clear();
+        let mut loc_to_rem = Vec::<usize>::new();
+        self.task_list.iter().enumerate().for_each(|(i,t)|
+        {
+            if t.get_done() {
+                loc_to_rem.push(i)
+            }
+        });
+        loc_to_rem.iter().for_each(|i| { self.task_list.remove(*i); })
     }
 
     pub fn is_empty(&self) -> bool {
-        self.task_list.is_empty() && self.done_list.is_empty()
+        self.task_list.is_empty() && self.task_list.is_empty()
     }
 
     pub fn read(&mut self) {
@@ -95,11 +110,9 @@ impl ToDoList {
         task_list.iter().enumerate().for_each(|(_i, t)| {
             let binding = t.to_string();
             let task_detail = binding.split(",").collect::<Vec<&str>>();
-            if task_detail[1].parse::<bool>().expect("Invalid File Format") {
-                self.done_list.push(Task::new(task_detail[0].to_string(), true));
-            } else {
-                self.task_list.push(Task::new(task_detail[0].to_string(), false));
-            }
+            self.task_list.push(Task::new(task_detail[0].to_string(),
+                                          task_detail[1].parse::<bool>()
+                                              .expect("Invalid File Format")));
         })
     }
 
@@ -115,12 +128,6 @@ impl ToDoList {
             .unwrap();
         let mut contents = Vec::<String>::new();
         self.task_list.iter().enumerate().for_each(
-            |(_i,t)|
-                {
-                    contents.push(t.to_string() + "," + &*t.get_done().to_string());
-                }
-        );
-        self.done_list.iter().enumerate().for_each(
             |(_i,t)|
                 {
                     contents.push(t.to_string() + "," + &*t.get_done().to_string());
@@ -159,31 +166,25 @@ impl ToDoList {
         true
     }
 
-    fn mark_as_done(&mut self, index: i32) -> bool {
+    fn mark_state(&mut self, index: i32, is_done: bool) -> bool {
         if self.task_list.is_empty() || index as usize > self.task_list.len() || index < 0 {
             printcoln!("[red]Please input valid task index.[:] \
             You can check the list using command `[b]list[:]`.");
             return false;
         }
         let u_index = index as usize;
-        self.task_list[u_index].set_done(true);
+        self.task_list[u_index].set_done(is_done);
         let task = self.task_list[u_index].clone();
-        self.done_list.push(task);
+        self.task_list.push(task);
         self.task_list.remove(u_index);
         true
     }
 
+    fn mark_as_done(&mut self, index: i32) -> bool {
+        self.mark_state(index, true)
+    }
+
     fn mark_undone(&mut self, index: i32) -> bool {
-        if self.done_list.is_empty() || index as usize > self.done_list.len() || index < 0 {
-            printcoln!("[red]Please input valid task index.[:] \
-            You can check the list using command `[b]list[:]`.");
-            return false;
-        }
-        let u_index = index as usize;
-        self.done_list[u_index].set_done(false);
-        let task = self.done_list[u_index].clone();
-        self.task_list.push(task);
-        self.done_list.remove(u_index);
-        true
+        self.mark_state(index, false)
     }
 }
