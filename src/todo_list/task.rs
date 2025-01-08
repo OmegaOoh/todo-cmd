@@ -1,3 +1,4 @@
+#[derive(Clone)]
 pub struct Task {
     title: String,
     done: bool,
@@ -9,15 +10,10 @@ impl Task {
     }
 
     pub fn to_string(&self) -> String {
-        self.title.clone() + " " + if self.done {"done"} else {""}
+        self.title.clone()
     }
 
-    fn toggle_done(&mut self) {
-        self.done = !self.done;
-    }
-
-    fn set_done(&mut self, state: bool) {
+    pub fn set_done(&mut self, state: bool) {
         self.done = state;
     }
-
 }
