@@ -2,7 +2,7 @@ mod task;
 
 use std::fs;
 use std::fs::{remove_file, OpenOptions};
-use std::io::{stdin, stdout, Read, Write};
+use std::io::{stdin, stdout, Write};
 use std::path::Path;
 use crate::todo_list::task::Task;
 use fancy::{printcol, printcoln};
