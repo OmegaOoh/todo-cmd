@@ -10,7 +10,10 @@ Write in Rust Programming Language
 ## How to Build from source
 1. Ensure you have Rust installed
 2. Clone the repository
-3. Use cargo to build the project
+   ```shell
+    git clone https://github.com/OmegaOoh/todo-cmd.git
+   ```
+4. Use cargo to build the project
    ```shell
     cargo build --release
    ```
