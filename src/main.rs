@@ -39,6 +39,8 @@ fn command_handler(todo_list: &mut ToDoList, cmd: Vec<&str>) {
             let i = todo_list.mark_undone_cui(&cmd);
             if i.is_some() {
                 printcoln!("[yellow]Marked task as undone.");
+                printcoln!("[cyan|b]Your updated todos:");
+                todo_list.print_list()
             }
         }
         "clear_done" => {

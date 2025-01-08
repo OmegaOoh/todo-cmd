@@ -93,6 +93,7 @@ impl ToDoList {
                 loc_to_rem.push(i)
             }
         });
+        loc_to_rem.reverse();
         loc_to_rem.iter().for_each(|i| { self.task_list.remove(*i); })
     }
 
@@ -140,8 +141,8 @@ impl ToDoList {
     fn parse_index(&mut self, string: String, function: fn(&mut Self,i32) -> bool) -> Option<i32> {
         match string.trim().parse::<i32>() {
             Ok(i) => {
-                if function(self, i - 1) {
-                    return Some(i)
+                if function(self, i-1) {
+                    return Some(i-1)
                 }
                 None
             },
@@ -174,9 +175,6 @@ impl ToDoList {
         }
         let u_index = index as usize;
         self.task_list[u_index].set_done(is_done);
-        let task = self.task_list[u_index].clone();
-        self.task_list.push(task);
-        self.task_list.remove(u_index);
         true
     }
 
