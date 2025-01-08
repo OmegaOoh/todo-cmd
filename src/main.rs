@@ -60,6 +60,8 @@ fn command_handler(todo_list: &mut ToDoList, cmd: Vec<&str>) {
 
 fn main() {
     let mut todo_list = ToDoList::new();
+    printcoln!("[green|b]Setting up...");
+    todo_list.read();
     loop {
         printcol!("[green|b]todo-cmd>[:] ");
         stdout().flush().unwrap();
@@ -72,6 +74,7 @@ fn main() {
 
         if cmd[0] == "exit" || cmd[0] == "quit" {
             printcoln!("[b]Quitting...");
+            todo_list.save();
             break;
         }
         else {
