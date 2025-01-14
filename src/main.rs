@@ -6,6 +6,17 @@ use fancy::{printcol, printcoln};
 
 fn command_handler(todo_list: &mut ToDoList, cmd: Vec<&str>) {
     match cmd[0] {
+        "help" => {
+            printcoln!("[blue|b]List of Commands:");
+            println!("clear : clear console screen");
+            println!("add [task title] : add task to your todos ");
+            println!("remove [task number] : remove task at specific number");
+            println!("done [task number] : mark task as done");
+            println!("undone [task number] : mark task as undone");
+            println!("clear_done : remove all done task");
+            println!("list : list out all done and todos");
+            println!("quit / exit : save and exit the application")
+        }
         "clear" => {
             clear().unwrap();
         }
@@ -67,7 +78,6 @@ fn main() {
     loop {
         printcol!("[green|b]todo-cmd>[:] ");
         stdout().flush().unwrap();
-
         let mut full_cmd = String::new();
         stdin().read_line(&mut full_cmd).unwrap();
         full_cmd = full_cmd.trim().to_string(); //remove leading/trailing whitespace
